@@ -59,3 +59,23 @@ def ticket_pdf():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
+
+from flask import render_template_string, redirect
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        with sqlite3.connect(DB) as conn:
+            c = conn.cursor()
+            c.execute("SELECT * FROM admin_users WHERE username = ? AND password = ?", (username, password))
+            user = c.fetchone()
+        if user:
+            return "✅ Welcome, Admin!"
+        else:
+            return "❌ Invalid credentials", 401
+    else:
+        with open('admin.html', 'r') as f:
+            return render_template_string(f.read())
+
